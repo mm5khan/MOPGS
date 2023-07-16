@@ -5,29 +5,31 @@ import time  # To used time sleep in the code
 import RPi.GPIO as GPIO  # Used to reference the GPIOs pins of RPI and related functions
 import adafruit_dht  # Temperature sensor package
 import serial  # Used to open a serial port to communication with the GSM Module via the Tx/Rx pins on RPI
-from RPLCD import CharLCD  # Package used to define LCD pins and control information being displayed on it
+from RPLCD import (
+    CharLCD,
+)  # Package used to define LCD pins and control information being displayed on it
 import BlynkLib  # Blynk IoT Package used to refere to different functions of the IoT Cloud service
-from BlynkTimer import BlynkTimer  # Package used to set a server based timer for the blynk to run each of the system functions on a blynk timer.
+from BlynkTimer import (
+    BlynkTimer,
+)  # Package used to set a server based timer for the blynk to run each of the system functions on a blynk timer.
 import random  # Package used to generate random values (Used for testing only)
+
 # from calendar import c
 
 # Blynk library Authentication code
 BLYNK_AUTH = "BmpPIGGWX1Uvsz3xq0HNnzKPYOdbdpEg"
 
 # Connect to blynk server using blynklin package functions
-blynk = BlynkLib.Blynk(BLYNK_AUTH, server='blynk.cloud')
+blynk = BlynkLib.Blynk(BLYNK_AUTH, server="blynk.cloud")
 
 # Disable GPIO warning messages (Appears sometime when trying to set a GPIO pin as IN/OUT while it's status already set)
 GPIO.setwarnings(False)
 
 # Define the LCD pins using the package CharLCD functions (GPIO.BCM 'Broadcom SOC channel' numbering convention being used to select pins)
-lcd = CharLCD(pin_rs=7,
-              pin_e=8,
-              pins_data=[25, 24, 23, 18],
-              numbering_mode=GPIO.BCM)
+lcd = CharLCD(pin_rs=7, pin_e=8, pins_data=[25, 24, 23, 18], numbering_mode=GPIO.BCM)
 
 # Hiding the cursor blinking on the LCD
-lcd.cursor_mode = 'hide'
+lcd.cursor_mode = "hide"
 
 # Selecting the I2C address and enabling the communication channel (The Address should Match the one used in Arduino Nano uploaded code)
 i2c_address = 0x48
@@ -50,7 +52,7 @@ blynk.sync_virtual(2, 3, 7, 9, 12, 13)
 timer = BlynkTimer()
 
 # Define new serial port object for to communicate with the GSM Module
-ser = serial.Serial('/dev/ttyS0', 115200, timeout=12)
+ser = serial.Serial("/dev/ttyS0", 115200, timeout=12)
 
 # Delay for 2 Seconds used to insure that above objects definitions and blynk server synchronization has been done
 time.sleep(2)
@@ -134,20 +136,20 @@ ac = 0
 # Functions used for receiving commands from the blynk server
 
 
-# Activated when the Auto Button is pressed to set Auto mode ON/OFF
 @blynk.VIRTUAL_WRITE(12)
 def my_write_handler(value):
+    """Activated when the Auto Button is pressed to set Auto mode ON/OFF"""
     global auto
     auto = value
     print(auto)
 
 
-# Activated when the AC Button is pressed to set AC ON/OFF Manually when Auto is OFF
 @blynk.VIRTUAL_WRITE(13)
 def my_write_handler(value):
+    """Activated when the AC Button is pressed to set AC ON/OFF Manually when Auto is OFF"""
     global ac
-    if auto == ['0']:
-        if value == ['1']:
+    if auto == ["0"]:
+        if value == ["1"]:
             GPIO.output(acPin, 1)
             ac = 1
         else:
@@ -155,12 +157,12 @@ def my_write_handler(value):
             GPIO.output(acPin, 0)
 
 
-# Activated when the Valve Button is pressed to set Valve ON/OFF Manually when Auto is OFF
 @blynk.VIRTUAL_WRITE(9)
 def my_write_handler(value):
+    """Activated when the Valve Button is pressed to set Valve ON/OFF Manually when Auto is OFF"""
     global valve
-    if auto == ['0']:
-        if value == ['1']:
+    if auto == ["0"]:
+        if value == ["1"]:
             valve = 1
             GPIO.output(valvePin, 1)
         else:
@@ -168,12 +170,12 @@ def my_write_handler(value):
             GPIO.output(valvePin, 0)
 
 
-# Activated when the Water Pump Button is pressed to set the pump ON/OFF Manually when Auto is OFF
 @blynk.VIRTUAL_WRITE(2)
 def my_write_handler(value):
+    """Activated when the Water Pump Button is pressed to set the pump ON/OFF Manually when Auto is OFF"""
     global waterPump
-    if auto == ['0']:
-        if value == ['1']:
+    if auto == ["0"]:
+        if value == ["1"]:
             waterPump = 1
             GPIO.output(waterPumpPin, 1)
         else:
@@ -181,12 +183,13 @@ def my_write_handler(value):
             GPIO.output(waterPumpPin, 0)
 
 
-# Activated when the Fertilizer Pump Button is pressed to set the pump ON/OFF Manually when Auto is OFF
+#
 @blynk.VIRTUAL_WRITE(3)
 def my_write_handler(value):
+    """Activated when the Fertilizer Pump Button is pressed to set the pump ON/OFF Manually when Auto is OFF"""
     global fertiliserPump
-    if auto == ['0']:
-        if value == ['1']:
+    if auto == ["0"]:
+        if value == ["1"]:
             fertiliserPump = 1
             GPIO.output(fertiliserPumpPin, 1)
         else:
@@ -194,12 +197,12 @@ def my_write_handler(value):
             GPIO.output(fertiliserPumpPin, 0)
 
 
-# Activated when the Light Button is pressed to set the light ON/OFF Manually when Auto is OFF
 @blynk.VIRTUAL_WRITE(7)
 def my_write_handler(value):
+    """Activated when the Light Button is pressed to set the light ON/OFF Manually when Auto is OFF"""
     global light
-    if auto == ['0']:
-        if value == ['1']:
+    if auto == ["0"]:
+        if value == ["1"]:
             light = 1
             GPIO.output(lightPin, 1)
         else:
@@ -207,19 +210,28 @@ def my_write_handler(value):
             GPIO.output(lightPin, 0)
 
 
-# Activated when the SMS Button is pressed to Send System Status Message Manually when Auto is OFF
 @blynk.VIRTUAL_WRITE(14)
 def my_write_handler(value):
-    if value == ['1']:
+    """Activated when the SMS Button is pressed to Send System Status Message Manually when Auto is OFF"""
+    if value == ["1"]:
         sendsms(
-            "System Status:\n\nTemp:{:.1f}C Hum:{:.1f}%\nPH:{:.1f} MOST:{:.2f}%\nWLVL{:.1f}% FLVL{:.1f}%\nLHT{} AC{}\nWPMP{} FPMP{}"
-            .format(temp, humidity, phLevel, most, (waterLevel / 18) * 100,
-                    (fertiliserLevel / 18) * 100, light, ac, waterPump,
-                    fertiliserPump))
+            "System Status:\n\nTemp:{:.1f}C Hum:{:.1f}%\nPH:{:.1f} MOST:{:.2f}%\nWLVL{:.1f}% FLVL{:.1f}%\nLHT{} AC{}\nWPMP{} FPMP{}".format(
+                temp,
+                humidity,
+                phLevel,
+                most,
+                (waterLevel / 18) * 100,
+                (fertiliserLevel / 18) * 100,
+                light,
+                ac,
+                waterPump,
+                fertiliserPump,
+            )
+        )
 
 
-## Read water container water level using an ultrasonic sensor distance measurement
 def readWaterLevel():
+    """Read water container water level using an ultrasonic sensor distance measurement"""
     global waterLevel
     trig = waterTxPin
     echo = waterRxPin
@@ -255,8 +267,8 @@ def readWaterLevel():
         waterLevel = 0
 
 
-## Read fertilizer container fertilizer level using an ultrasonic sensor distance measurement
 def readFertiliserLevel():
+    """Read fertilizer container fertilizer level using an ultrasonic sensor distance measurement"""
     global fertiliserLevel
     trig = fertiliserTxPin
     echo = fertiliserRxPin
@@ -292,51 +304,59 @@ def readFertiliserLevel():
         fertiliserLevel = 0
 
 
-## Function used to send an SMS message using AT Commands via the serial port object (ser)
 def sendsms(message):
-    ser.write(b'AT\r')  # Enter command mode
+    """Function used to send an SMS message using AT Commands via the serial port object (ser)"""
+    ser.write(b"AT\r")  # Enter command mode
+    time.sleep(1)
+    ser.write(b"AT+CMGF=1\r")  # Select the operation mode to 1 (Sending SMS Message)
     time.sleep(1)
     ser.write(
-        b'AT+CMGF=1\r')  # Select the operation mode to 1 (Sending SMS Message)
-    time.sleep(1)
-    ser.write(b'AT+CMGS=\"+97333091895\"\r'
-              )  # Providing the Mobile Number the the SMS will be sent to
+        b'AT+CMGS="+97333091895"\r'
+    )  # Providing the Mobile Number the the SMS will be sent to
     time.sleep(1)
     ser.write(message.encode() + b"\r")  # message contans the system status
     time.sleep(1)
-    ser.write(chr(26).encode()
-              )  # Activate send command by sending char(26) which is CTRL+Z
+    ser.write(
+        chr(26).encode()
+    )  # Activate send command by sending char(26) which is CTRL+Z
     time.sleep(1)
-    ser.flush(
-    )  # Remove any remaining bytes in the serial buffer to avoid messages overlapping
+    ser.flush()  # Remove any remaining bytes in the serial buffer to avoid messages overlapping
 
 
-## Function used to send an SMS message using AT Commands via the serial port object (ser)
 def sendsms():
+    """Function used to send an SMS message using AT Commands via the serial port object (ser)"""
     message = "System Status:\n\nTemp:{:.1f}C Hum:{:.1f}%\nPH:{:.1f} MOST:{:.2f}%\nWLVL{:.1f}% FLVL{:.1f}%\nLHT{} AC{}\nWPMP{} FPMP{}".format(
-        temp, humidity, phLevel, most, (waterLevel / 18) * 100,
-        (fertiliserLevel / 18) * 100, light, ac, waterPump, fertiliserPump)
+        temp,
+        humidity,
+        phLevel,
+        most,
+        (waterLevel / 18) * 100,
+        (fertiliserLevel / 18) * 100,
+        light,
+        ac,
+        waterPump,
+        fertiliserPump,
+    )
 
-    ser.write(b'AT\r')  # Enter command mode
+    ser.write(b"AT\r")  # Enter command mode
+    time.sleep(1)
+    ser.write(b"AT+CMGF=1\r")  # Select the operation mode to 1 (Sending SMS Message)
     time.sleep(1)
     ser.write(
-        b'AT+CMGF=1\r')  # Select the operation mode to 1 (Sending SMS Message)
-    time.sleep(1)
-    ser.write(b'AT+CMGS=\"+97333091895\"\r'
-              )  # Providing the Mobile Number the the SMS will be sent to
+        b'AT+CMGS="+97333091895"\r'
+    )  # Providing the Mobile Number the the SMS will be sent to
     time.sleep(1)
     ser.write(message.encode() + b"\r")  # message contains the system status
     time.sleep(1)
-    ser.write(chr(26).encode()
-              )  # Activate send command by sending char(26) which is CTRL+Z
+    ser.write(
+        chr(26).encode()
+    )  # Activate send command by sending char(26) which is CTRL+Z
     time.sleep(1)
-    ser.flush(
-    )  # Remove any remaining bytes in the serial buffer to avoid messages overlapping
+    ser.flush()  # Remove any remaining bytes in the serial buffer to avoid messages overlapping
 
 
-# Functions used to change the status of relays and receive sensors data from the Arduino Nano via I2C protocol
 def controlDevices():
-
+    """Functions used to change the status of relays and receive sensors data from the Arduino Nano via I2C protocol"""
     # Global variable means its value could be referred to outside of this function scope (reading its value only)
     global waterPump
     global most
@@ -376,10 +396,8 @@ def controlDevices():
 
     # When the Auto Mode is active then check the sensors values againest predefined thresholds
     # To send the corrresponding device relay ON/OFF accordingly
-    if auto == ['1']:
-
+    if auto == ["1"]:
         try:  # Try is used to catch runtime errors
-
             # Check the light level and switch ON/OFF the corresponding relay
             if lightLevel < lightThrshold:
                 # print("Night Time!")
@@ -429,33 +447,29 @@ def controlDevices():
         # then switch OFF the AC relay and if it is above threshold then switch AC to ON
         if temp and humidity:
             if temp < tempThreshold:
-
-                if auto == ['1']:
+                if auto == ["1"]:
                     ac = 0
                     GPIO.output(acPin, 0)
 
             elif temp >= tempThreshold:
-
-                if auto == ['1']:
+                if auto == ["1"]:
                     ac = 1
                     GPIO.output(acPin, 1)
     except RuntimeError as error:
         pass
 
-    #phLevel = (phLevel / 9840) * 10         # Will return values between 0 - 10 from the pH Sensor
-    #phLevel = random.uniform(7, 7.6)
+    # phLevel = (phLevel / 9840) * 10         # Will return values between 0 - 10 from the pH Sensor
+    # phLevel = random.uniform(7, 7.6)
 
     # Store the mositure and light levels to be used with the blynk
     most = mositureLevel
 
 
-# This function will update the status of the system in the blynk IoT dashboard
-# By refering to each of defined virtual pin
 def controlBlynk():
-
+    """This function will update the status of the system in the blynk IoT dashboard by refering to each of defined virtual pin"""
     # If the Auto mode is active then control water Pump, fertilizer Pump, light and valve according to
     # the sensor data automatically
-    if auto == ['1']:
+    if auto == ["1"]:
         blynk.virtual_write(2, waterPump)
         blynk.virtual_write(3, fertiliserPump)
         blynk.virtual_write(7, light)
@@ -471,15 +485,15 @@ def controlBlynk():
     if not fertiliserLevel == None:
         blynk.virtual_write(6, fertiliserLevel)
 
-    #lynk.virtual_write(11, data)
+    # lynk.virtual_write(11, data)
     if not humidity == None:
         blynk.virtual_write(4, humidity)
     if not temp == None:
         blynk.virtual_write(10, temp)
 
 
-# THis function will update the data displayed on the LCD
 def lcd_data():
+    """This function will update the data displayed on the LCD"""
     lcd.clear()
     time.sleep(0.1)
     lcd.cursor_pos = (0, 0)  # (Rows, Columns)
@@ -491,12 +505,17 @@ def lcd_data():
     lcd.write_string("PH:{:.1f} MOST:{:.2f}%".format(phLevel, most))
     lcd.cursor_pos = (2, 0)
     time.sleep(0.1)
-    lcd.write_string("WLVL{:.1f}% FLVL{:.1f}%".format(
-        (waterLevel / 18) * 100, (fertiliserLevel / 18) * 100))
+    lcd.write_string(
+        "WLVL{:.1f}% FLVL{:.1f}%".format(
+            (waterLevel / 18) * 100, (fertiliserLevel / 18) * 100
+        )
+    )
     lcd.cursor_pos = (3, 0)
     time.sleep(0.1)
-    lcd.write_string("LHT{} AC{} WPMP{} FPMP{}".format(light, ac, waterPump,
-                                                       fertiliserPump))
+    lcd.write_string(
+        "LHT{} AC{} WPMP{} FPMP{}".format(light, ac, waterPump, fertiliserPump)
+    )
+
 
 # The below are list of blynk timers which will call the above functions
 # in differnet time intervales, and the menioned numbers are intervals in seconds
