@@ -1,4 +1,4 @@
-from tkinter import Variable
+from tkinter import Variable #importing variable from tkinter
 import board  # Package reference RPi pins enumeration (Used for Pin 4 of RPi for the temperature sensor)
 import smbus  # Package referenced to use system management bus for the I2C protocol (Used for the connection between RPI and Arduino Nano)
 import time  # To used time sleep in the code
