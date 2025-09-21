@@ -17,7 +17,7 @@ import random  # Package used to generate random values (Used for testing only)
 # from calendar import c
 
 # Blynk library Authentication code
-BLYNK_AUTH = "BmpPIGGWX1Uvsz3xq0HNnzKPYOdbdpEg"
+BLYNK_AUTH = ""
 
 # Connect to blynk server using blynklin package functions
 blynk = BlynkLib.Blynk(BLYNK_AUTH, server="blynk.cloud")
