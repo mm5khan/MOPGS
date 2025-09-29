@@ -35,6 +35,7 @@ A Python application that orchestrates a system for plant care. It’s designed 
   *`Schedulers`: periodic tasks: `pollSensors`, `reconcile`, `publish`, `render`
 
 ## Data flow (pull → decide → apply → publish)
+```
 [I2C + DHT] --> SensorFrame  ┐
                              |--> Controller(policy) --> ActuatorIntent --> GPIO
 [Blynk V-pins] --> Commands  ┘                                  |
@@ -43,6 +44,7 @@ A Python application that orchestrates a system for plant care. It’s designed 
                               |              Publishers (views/transports)          |
                               |   Blynk telemetry    LCD view     SMS (on demand)  |
                               └----------------------------------------------------┘
+```
 ## Execution Model
 - Event-driven: Blynk virtual pin callbacks (manual commands)
 - Time-driven: `BlynkTimer` schedules (2s/3s/4s) for poll/apply/publish
